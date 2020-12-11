@@ -8,7 +8,7 @@ _start:   mov         rax, 1          ; System call for write.
           syscall                     ; Invoke OS.
           mov         rax, 60         ; System call for exit.
           xor         rdi, rdi        ; Exit code 0.
-          sycall                      ; Invoke OS.
+          syscall                     ; Invoke OS.
 
           section     .data
 message:  db          "Hello, world", 10 ; Note the newline at the end
