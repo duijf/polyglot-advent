@@ -12,14 +12,30 @@
 
 %define O_RDONLY 0
 
+;; Write bytes to stderr.
+;;
+;; `rax` - Pointer to the bytes to write to stderr. This routine
+;; starts a search at `[rax]` until it finds a NUL byte. It then
+;; prints all data until that NUL byte.
+eprint:
+    ;; Register that will be passed as the second argument to
+    ;; SYS_WRITE.
+    mov rdi, STDERR
+    jmp printCommon
+
 ;; Write bytes to stdout.
 ;;
 ;; `rax` - Pointer to the bytes to write to stdout. This routine
 ;; starts a search at `[rax]` until it finds a NUL byte. It then
 ;; prints all data until that NUL byte.
 print:
+    mov rdi, STDOUT
+    jmp printCommon
+
+printCommon:
     push rax
     mov rbx, 0
+
 ;; Loop until finding a NUL byte.
 printLoop:
     inc rax
@@ -35,3 +51,12 @@ printLoop:
     mov rdx, rbx
     syscall
     ret
+
+;; Print the value of the `rax` register to standard error
+;; and exit with EXIT_FAILURE.
+error:
+    call eprint
+
+    mov rax, SYS_EXIT
+    mov rdi, EXIT_FAILURE
+    syscall

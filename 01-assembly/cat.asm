@@ -73,28 +73,16 @@ exit:
     syscall
 
 error_read:
-    mov rsi, read_err_msg
-    mov rdx, read_err_msg_len
-    jmp error
+    mov rax, read_err_msg
+    call error
 
 error_write:
-    mov rsi, write_err_msg
-    mov rdx, write_err_msg_len
-    jmp error
+    mov rax, write_err_msg
+    call error
 
 error_open:
-    mov rsi, open_err_msg
-    mov rdx, open_err_msg_len
-    jmp error
-
-error:
-    mov rax, SYS_WRITE
-    mov rdi, STDERR
-    syscall
-
-    mov rax, SYS_EXIT
-    mov rdi, EXIT_FAILURE
-    syscall
+    mov rax, open_err_msg
+    call error
 
 section .data
 ;; File descriptor for the file to cat.
@@ -102,12 +90,9 @@ fd dw 0
 ;; Filename to open. Null terminated. I don't want to do argument
 ;; parsing for now.
 filename db "input", 0
-open_err_msg db "Could not open file", 10
-open_err_msg_len equ $ - open_err_msg
-read_err_msg db "Could not read from file descriptor", 10
-read_err_msg_len equ $ - read_err_msg
-write_err_msg db "Could not write to file descriptor", 10
-write_err_msg_len equ $ - write_err_msg
+open_err_msg db "Could not open file", 10, 0
+read_err_msg db "Could not read from file descriptor", 10, 0
+write_err_msg db "Could not write to file descriptor", 10, 0
 
 section .bss
 buffer resb BUFFER_SIZE
