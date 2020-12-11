@@ -85,7 +85,7 @@ read_input:
 parse_input:
 _init:
     ;; `rdi` contains the index in `buffer`.
-    mov rdi, [buffer]
+    mov rdi, buffer
 
     ;; `rsi` contains the current character that we're parsing.
     mov rsi, 0
@@ -94,11 +94,21 @@ _init:
     mov rdx, 0
 
     ;; `r10` contains the index into `parsed_numbers`
-    mov r10, 0
+    mov r10, parsed_numbers
 
     jmp _loop
 _next:
+    ;; Copy the parsed number into `parsed_numbers`.
+    mov [r10], rdx
 
+    ;; Reset the intermediate result.
+    mov rdx, 0
+
+    ;; Skip the current character (it's a newline).
+    inc rdi
+
+    ;; Increment the index into `parsed_numbers`
+    inc r10
 _loop:
     ;; `rsi` contains the current byte to be parsed. Read it from the buffer.
     ;; There appears to be a difference between "sign extension" and "zero
@@ -132,10 +142,13 @@ _loop:
     sub rsi, 48
     add rdx, rsi
 
-    inc rdx
+    ;; Increment the index into the buffer we're parsing.
+    inc rdi
 
     jmp _loop
+
 _after:
+    jmp exit
 
 calc:
 
