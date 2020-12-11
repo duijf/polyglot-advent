@@ -29,7 +29,7 @@ echo "Building $ASM_FILE to $BIN_FILE"
 
 # Assemble with Netwide assembler. Build a 64-bit ELF file so
 # we can run on Linux.
-nasm -felf64 "$ASM_FILE" -o "$OBJ_FILE"
+nasm -felf64 "$ASM_FILE" -F dwarf -g -o "$OBJ_FILE"
 
 # Pass the object file to the linker so we get a binary that we
 # can actually execute.
