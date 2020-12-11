@@ -19,7 +19,7 @@
 global _start
 
 ;; System calls
-;; 
+;;
 ;; - Set `rax` to the system call number you want.
 ;; - Pass arguments in `rdi`, `rsi`, `rdx`, `r10`, `r8`, `r9`.
 ;; - Run the `syscall` instruction.
@@ -53,7 +53,7 @@ read_input:
     syscall
 
     ;; If we didn't read any bytes, there is nothing that we can
-    ;; compute about. If we read less than 
+    ;; compute about. If we read less than
     cmp rax, 0
     je exit
     jl error_read
@@ -63,6 +63,82 @@ read_input:
     ;; the BUFFER_SIZE.
     cmp rax, BUFFER_SIZE
     je error_buffer_size
+
+;; Parse `buffer` into `parsed_numbers`.
+;;
+;; `buffer` contains ASCII data, which means that the digits 0 to 9
+;; have the following byte values:
+;;
+;; dec char      dec char
+;; 48  0         53  5
+;; 49  1         54  6
+;; 50  2         55  7
+;; 51  3         56  8
+;; 52  4         57  9
+;;
+;; Loop over `buffer`, read a character at a time. Interpret the bytes
+;; as ASCII and add them to the running total.
+;;
+;; Move the pointer in `parsed_numbers` by one if we find a newline.
+;;
+;; Stop parsing if we hit a NUL character. We're at the end of the file.
+parse_input:
+_init:
+    ;; `rdi` contains the index in `buffer`.
+    mov rdi, [buffer]
+
+    ;; `rsi` contains the current character that we're parsing.
+    mov rsi, 0
+
+    ;; `rdx` contains the intermediate parsed result. Initialize it to 0.
+    mov rdx, 0
+
+    ;; `r10` contains the index into `parsed_numbers`
+    mov r10, 0
+
+    jmp _loop
+_next:
+
+_loop:
+    ;; `rsi` contains the current byte to be parsed. Read it from the buffer.
+    ;; There appears to be a difference between "sign extension" and "zero
+    ;; extension". Not sure what the difference is. Let's try zero extension,
+    ;; as we're dealing with unsigned values here.
+    ;;
+    ;; More: https://stackoverflow.com/questions/20727379/
+
+    movzx rsi, byte [rdi]
+
+    ;; Check for the zero byte. If we get here, we're done parsing.
+    cmp rsi, 0
+    je _after
+
+    ;; Newline character.
+    cmp rsi, 10
+    je _next
+
+    ;; Start of the ASCII number range
+    cmp rsi, 48
+    jl error_parse
+
+    ;; End of the ASCII number range (exclusive)
+    cmp rsi, 58
+    jge error_parse
+
+    ;; Once we get here, we have a valid ASCII character that we need to parse.
+    ;; Multiply the current intermediate result by 10, convert `rsi` to a decimal
+    ;; value and add to the intermediate result.
+    imul rdx, 10
+    sub rsi, 48
+    add rdx, rsi
+
+    inc rdx
+
+    jmp _loop
+_after:
+
+calc:
+
 
 exit:
     mov rax, SYS_EXIT
@@ -122,3 +198,4 @@ buffer_size_err_msg_len equ $ - buffer_size_err_msg
 
 section .bss
 buffer resb BUFFER_SIZE
+parsed_numbers resb BUFFER_SIZE
