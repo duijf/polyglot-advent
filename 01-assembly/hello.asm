@@ -1,7 +1,4 @@
-%define SYS_EXIT 60
-%define SYS_WRITE 1
-%define STDOUT 1
-%define EXIT_SUCCESS 0
+%include "linux64.asm"
 
 global _start
 
