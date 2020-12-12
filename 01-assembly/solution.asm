@@ -11,7 +11,18 @@ _start:
     call open_input
     call read_input
 
+    ;; Test case for parse_ascii_int
+    mov rax, test_number
+    call parse_ascii_int
+
+    cmp rdi, 1334
+    jne _parse_fail
+
     exit EXIT_SUCCESS
+
+_parse_fail:
+    mov rax, parse_invalid
+    call error
 
 ;;; Open the `input` file and save the file descriptor into the
 ;;; `fd` address.
@@ -43,12 +54,60 @@ _read_input_error:
     mov rax, buffer_size_err_msg
     call error
 
+;;; Parse ASCII characters into an integer until hitting
+;;; a non-numeric character.
+;;;
+;;; Parameters:
+;;; `rax` - Start address of the ASCII string.
+;;;
+;;; Returns:
+;;; `rax` - Address one past last ASCII digit.
+;;; `rdi` - The parsed integer.
+;;; `rsi` - The character the parsing ended on.
+;;;
+;;; This routine raises an error if it
+parse_ascii_int:
+    mov rdi, 0                  ; Running total.
+    mov rsi, 0                  ; Current char we're parsing.
+_parse_ascii_int_loop:
+    ;; Read a byte from the `resb` into the `rsi` register (which
+    ;; is 64 bits), and zero extend the byte until it fits the
+    ;; register.
+    movzx rsi, byte [rax]
+
+    ;; If it's less than 48 (`0` in ASCII), we're not parsing digits
+    ;; anymore and we're done.
+    cmp rsi, 48
+    jl _parse_ascii_int_end
+
+    ;; Same if greater than 57 (`9` in ASCII).
+    cmp rsi, 57
+    jg _parse_ascii_int_end
+
+    ;; Here, we have a valid digit.
+    ;;
+    ;;  - Subtract 48 to convert ASCII to a numeric digit.
+    ;;  - Multiply the running total with 10.
+    ;;  - Add the parsed digit to the running total.
+    sub rsi, 48
+    imul rdi, 10
+    add rdi, rsi
+
+    ;; Move our pointer another byte and loop again.
+    inc rax
+    jmp _parse_ascii_int_loop
+_parse_ascii_int_end:
+    ret
+
 section .data
     ;; Filename to read the input from.
     input_file db "input", 0
 
     ;; File descriptor of the open
     fd dw 0
+
+    test_number db "1334", 10, 0
+    parse_invalid db "Parsed number was incorrect", 10, 0
 
     ;; Error messages for the different problems we can encounter.
     open_err_msg db "Could not open file", 10, 0
