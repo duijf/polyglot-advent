@@ -32,12 +32,7 @@ _start:
     mov rax, SYS_OPEN
     mov rdi, filename
     mov rsi, O_RDONLY
-    syscall
-
-    ;; Check if rax (return value of the syscall) is less than zero.
-    ;; Jump to the error handler in that case.
-    cmp rax, 0
-    jl error_open
+    checked_syscall open_err_msg
 
     ;; Save the open file descriptor into memory.
     mov [fd], rax
@@ -47,40 +42,24 @@ read_write:
     mov rdi, [fd]
     mov rsi, buffer
     mov rdx, BUFFER_SIZE
-    syscall
+    checked_syscall read_err_msg
 
     ;; If we didn't read any bytes, there is nothing left to
     ;; write. Therefore exit.
     cmp rax, 0
     je _exit
-    jl error_read
 
     ;; Write the same number of bytes as we just read.
     mov rdx, rax
     mov rax, SYS_WRITE
     mov rdi, STDOUT
     mov rsi, buffer
-    syscall
-
-    cmp rax, 0
-    jl error_write
+    checked_syscall write_err_msg
 
     jmp read_write
 
 _exit:
     exit EXIT_SUCCESS
-
-error_read:
-    mov rax, read_err_msg
-    call error
-
-error_write:
-    mov rax, write_err_msg
-    call error
-
-error_open:
-    mov rax, open_err_msg
-    call error
 
 section .data
 ;; File descriptor for the file to cat.
