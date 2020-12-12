@@ -52,14 +52,18 @@ printLoop:
     syscall
     ret
 
+;;; Exit with a given exit status.
+%macro exit 1
+    mov rax, SYS_EXIT
+    mov rdi, %1
+    syscall
+%endmacro
+
 ;; Print the value of the `rax` register to standard error
 ;; and exit with EXIT_FAILURE.
 error:
     call eprint
-
-    mov rax, SYS_EXIT
-    mov rdi, EXIT_FAILURE
-    syscall
+    exit EXIT_FAILURE
 
 ;;; Perform a syscall, checking the result.
 ;;;
