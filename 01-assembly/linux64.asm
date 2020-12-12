@@ -60,3 +60,20 @@ error:
     mov rax, SYS_EXIT
     mov rdi, EXIT_FAILURE
     syscall
+
+;;; Perform a syscall, checking the result.
+;;;
+;;; When the return value is negative (indicating an error case),
+;;; print the buffer passed as the first arg using the print routine
+;;; and exit the program.
+%macro checked_syscall 1
+    syscall
+    cmp rax, 0
+    jge %%good
+
+    ;; If we get here, we are in an error condition. Move the address
+    ;; of the string to print to `rax` and exit the program.
+    mov rax, %1
+    call error
+%%good:
+%endmacro
