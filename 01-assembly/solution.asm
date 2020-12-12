@@ -12,7 +12,9 @@ _start:
     mov rdi, input_file
     mov rsi, O_RDONLY
     checked_syscall open_err_msg
-    ;; Open input file
+
+    exit EXIT_SUCCESS
+
 
 section .data
     ;; Filename to read the input from.

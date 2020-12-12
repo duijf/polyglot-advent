@@ -52,7 +52,7 @@ read_write:
     ;; If we didn't read any bytes, there is nothing left to
     ;; write. Therefore exit.
     cmp rax, 0
-    je exit
+    je _exit
     jl error_read
 
     ;; Write the same number of bytes as we just read.
@@ -67,10 +67,8 @@ read_write:
 
     jmp read_write
 
-exit:
-    mov rax, SYS_EXIT
-    mov rdi, EXIT_SUCCESS
-    syscall
+_exit:
+    exit EXIT_SUCCESS
 
 error_read:
     mov rax, read_err_msg

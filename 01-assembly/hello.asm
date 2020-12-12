@@ -7,9 +7,7 @@ _start:
     mov rax, message
     call print
 
-    mov rax, SYS_EXIT
-    mov rdi, EXIT_SUCCESS
-    syscall
+    exit EXIT_SUCCESS
 
 section .data
 message db "Hello, world", 10, 0
