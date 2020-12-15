@@ -1,3 +1,7 @@
+;;; solution.asm - Advent of Code 2020 challenges 1a and 1b.
+;;; Run using run.sh from this directory. Look at the readme
+;;; for instructions.
+
 %include "linux64.asm"
 
 %define BUFFER_SIZE 1024
@@ -155,14 +159,19 @@ _find_sum_test:
 
     jmp _find_sum_loop
 _find_sum_next_outer:
+    ;; Move the outer loop forward by incrementing the first pointer
+    ;; and resetting r10. Then fall through the next bit of code to
+    ;; eventually jump back into testing and the loop itself.
     inc r9
     mov r10, r9
 _find_sum_next_inner:
+    ;; Reset the inner loops by incrementing the right offsets.
     inc r10
     mov r11, r10
     inc r11
     jmp _find_sum_test
 _find_sum_end:
+    ;; Return the result in the rax register.
     mov rax, [number_array+r9*8]
     imul rax, [number_array+r10*8]
     imul rax, [number_array+r11*8]
@@ -180,8 +189,6 @@ section .data
     ;; Error messages for the different problems we can encounter.
     open_err_msg db "Could not open file", 10, 0
     read_err_msg db "Could not read from file descriptor", 10, 0
-    write_err_msg db "Could not write to file descriptor", 10, 0
-    parse_err_msg db "Could not parse input file contents", 10, 0
     buffer_size_err_msg db "Increase the BUFFER_SIZE", 10, 0
 
 section .bss
