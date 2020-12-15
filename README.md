@@ -7,28 +7,28 @@ programming languages. One programming language a problem / day.
 
  - APL
  - Agda
- - Assembly
- - C 
- - C++ 
+ - Assembly (NASM x64) - [Solution for day 01](./01-assembly)
+ - C
+ - C++
  - COBOL
  - Erlang
- - Go 
- - Haskell 
- - Idris 
- - Java 
- - Julia 
+ - Go
+ - Haskell
+ - Idris
+ - Java
+ - Julia
  - (La)TeX
  - Nim
- - OCaml 
+ - OCaml
  - PHP
  - Python
- - Racket 
+ - Racket
  - Ruby
  - Rust
- - SQL 
- - Scheme 
+ - SQL
+ - Scheme
  - GLSL Shaders
- - Smalltalk 
+ - Smalltalk
  - Solidity (Ethereum blockchain stuff. No clue how this works.)
  - Typescript
 
