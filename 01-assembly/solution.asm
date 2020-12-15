@@ -102,21 +102,41 @@ _parse_numbers_end:
 ;;; them.
 find_sum:
     mov r8, number_array             ; Address of first element
-    mov r9, number_array             ; Pointer to second element.
+    mov r9, 0                        ; Offset of pointer 1
+    mov r10, 1                       ; Offset of pointer 2
 
-    ;; Max address for bounds checks.
-    mov r10, total_parsed_numbers
-    imul r10, 8
-    add r10, number_array
+    ;; Max iterate of r9
+    mov r11, [total_parsed_numbers]
+    sub r11, 1
+    ;; Max iteration of r10
+    mov r12, [total_parsed_numbers]
+
+    jmp _find_sum_test
 _find_sum_loop:
-    inc r9
+    mov rdi, [number_array+r9*8]
+    add rdi, [number_array+r10*8]
 
-    cmp r10, r9
+    cmp rdi, 2020
     je _find_sum_end
+
+    inc r10
+_find_sum_test:
+    ;; Check if number_array <= r9 < number_array+total_parsed_numbers-1.
+    cmp r9, r11
+    je _find_sum_end
+
+    ;; Check if number_array < r10 < number_array+total_parsed_numbers. If
+    ;; not, reset the loop and move to the next element.
+    cmp r10, r12
+    jl _find_sum_loop
 _find_sum_next:
-    inc r8
-    mov r9, r8
+    inc r9
+    mov r10, r9
+    add r10, 1
+    jmp _find_sum_test
 _find_sum_end:
+    mov rax, [number_array+r9*8]
+    imul rax, [number_array+r10*8]
     ret
 
 section .data
