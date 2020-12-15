@@ -16,6 +16,8 @@ _start:
     mov rax, test_number
     call parse_numbers
 
+    mov [total_parsed_numbers], rax
+
     cmp qword [number_array], 2008
     jne _parse_fail
 
@@ -106,6 +108,7 @@ _parse_numbers_next:
     add r9, 8                   ; Advance write pointer (elems are 8 bytes long).
     jmp _parse_numbers_loop
 _parse_numbers_end:
+    mov rax, r11
     ret
 
 section .data
@@ -130,3 +133,6 @@ section .bss
     ;; Allocate in chunks of 8 bytes, because we're parsing these numbers
     ;; into 64 bit integers.
     number_array resq MAX_PARSED_NUMBERS
+
+    ;; Total amount of parsed numbers.
+    total_parsed_numbers resq 0
