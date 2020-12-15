@@ -99,7 +99,15 @@ _parse_numbers_end:
     ret
 
 ;;; Find two numbers within `number_array` that sum to 2020 and multiply
-;;; them.
+;;; them. We basically want an assembly version of:
+;;;
+;;; for (int i = 0; i < total_parsed_numbers-1; i++) {
+;;;     for (int j = 1; i < total_parsed_numbers; j++) {
+;;;         if (number_array[i] + number_array[j] == 2020) {
+;;;             return number_array[i] * number_array[j];
+;;;         }
+;;;     }
+;;; }
 find_sum:
     mov r8, number_array             ; Address of first element
     mov r9, 0                        ; Offset of pointer 1
