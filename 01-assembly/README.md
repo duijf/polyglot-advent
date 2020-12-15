@@ -13,3 +13,10 @@ Program received signal SIGSEGV, Segmentation fault.
 _next () at solution.asm:110
 110         movzx rsi, byte [rdi]
 ```
+
+## Cheatsheet
+
+### Linux calling conventions
+
+ - **Syscall number:** `rax`.
+ - **Arguments**: `rdi`, `rsi`, `rdx`, `r10`, `r8`, `r9`.
