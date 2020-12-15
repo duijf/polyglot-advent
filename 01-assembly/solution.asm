@@ -101,10 +101,12 @@ _parse_numbers_end:
 ;;; Find two numbers within `number_array` that sum to 2020 and multiply
 ;;; them. We basically want an assembly version of:
 ;;;
-;;; for (int i = 0; i < total_parsed_numbers-1; i++) {
-;;;     for (int j = 1; i < total_parsed_numbers; j++) {
-;;;         if (number_array[i] + number_array[j] == 2020) {
-;;;             return number_array[i] * number_array[j];
+;;; for (int i = 0; i < total_parsed_numbers-2; i++) {
+;;;     for (int j = 1; j < total_parsed_numbers-1; j++) {
+;;;         for (int k = 1; k < total_parsed_numbers; k++) {
+;;;             if (number_array[i] + number_array[j] + number_array[k] == 2020) {
+;;;                 return number_array[i] * number_array[j] * number_array[k];
+;;;             }
 ;;;         }
 ;;;     }
 ;;; }
@@ -112,39 +114,58 @@ find_sum:
     mov r8, number_array             ; Address of first element
     mov r9, 0                        ; Offset of pointer 1
     mov r10, 1                       ; Offset of pointer 2
+    mov r11, 2                       ; Offset of pointer 3
 
-    ;; Max iterate of r9
-    mov r11, [total_parsed_numbers]
-    sub r11, 1
-    ;; Max iteration of r10
+    ;; Max loop value of r9
     mov r12, [total_parsed_numbers]
+    sub r12, 2
+
+    ;; Max loop value of r10
+    mov r13, [total_parsed_numbers]
+    sub r13, 1
+
+    ;; Max loop value of r11
+    mov r14, [total_parsed_numbers]
 
     jmp _find_sum_test
 _find_sum_loop:
     mov rdi, [number_array+r9*8]
     add rdi, [number_array+r10*8]
+    add rdi, [number_array+r11*8]
 
     cmp rdi, 2020
     je _find_sum_end
 
-    inc r10
+    inc r11
 _find_sum_test:
-    ;; Check if number_array <= r9 < number_array+total_parsed_numbers-1.
-    cmp r9, r11
+    ;; Check if the first pointer is still in bounds. If not,
+    ;; we're done with the entire loop.
+    cmp r9, r12
     je _find_sum_end
 
-    ;; Check if number_array < r10 < number_array+total_parsed_numbers. If
-    ;; not, reset the loop and move to the next element.
-    cmp r10, r12
-    jl _find_sum_loop
-_find_sum_next:
+    ;; Check if the second pointer is still in bounds. If not,
+    ;; we need to advance the first pointer and reset the second.
+    cmp r10, r13
+    je _find_sum_next_outer
+
+    ;; Check if the third pointer is still in bounds. if not,
+    ;; we need to advance the second pointer and reset the third.
+    cmp r11, r14
+    je _find_sum_next_inner
+
+    jmp _find_sum_loop
+_find_sum_next_outer:
     inc r9
     mov r10, r9
-    add r10, 1
+_find_sum_next_inner:
+    inc r10
+    mov r11, r10
+    inc r11
     jmp _find_sum_test
 _find_sum_end:
     mov rax, [number_array+r9*8]
     imul rax, [number_array+r10*8]
+    imul rax, [number_array+r11*8]
     ret
 
 section .data
