@@ -11,21 +11,8 @@ section .text
 _start:
     call open_input
     call read_input
-
-    ;; Test case for parse_numbers
-    mov rax, test_number
     call parse_numbers
-
-    mov [total_parsed_numbers], rax
-
-    cmp qword [number_array], 2008
-    jne _parse_fail
-
-    cmp qword [number_array+8], 1529
-    jne _parse_fail
-
-    cmp qword [number_array+16], 1594
-    jne _parse_fail
+    call find_sum
 
     exit EXIT_SUCCESS
 
@@ -108,7 +95,28 @@ _parse_numbers_next:
     add r9, 8                   ; Advance write pointer (elems are 8 bytes long).
     jmp _parse_numbers_loop
 _parse_numbers_end:
-    mov rax, r11
+    mov [total_parsed_numbers], r11
+    ret
+
+;;; Find two numbers within `number_array` that sum to 2020 and multiply
+;;; them.
+find_sum:
+    mov r8, number_array             ; Address of first element
+    mov r9, number_array             ; Pointer to second element.
+
+    ;; Max address for bounds checks.
+    mov r10, total_parsed_numbers
+    imul r10, 8
+    add r10, number_array
+_find_sum_loop:
+    inc r9
+
+    cmp r10, r9
+    je _find_sum_end
+_find_sum_next:
+    inc r8
+    mov r9, r8
+_find_sum_end:
     ret
 
 section .data
@@ -118,7 +126,6 @@ section .data
     ;; File descriptor of the open
     fd dw 0
 
-    test_number db "1334", 10, 0
     parse_invalid db "Parsed number was incorrect", 10, 0
 
     ;; Error messages for the different problems we can encounter.
