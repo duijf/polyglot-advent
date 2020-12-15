@@ -1,6 +1,7 @@
 %include "linux64.asm"
 
 %define BUFFER_SIZE 1024
+%define MAX_PARSED_NUMBERS 256
 
 global _start
 
@@ -11,11 +12,17 @@ _start:
     call open_input
     call read_input
 
-    ;; Test case for parse_ascii_int
+    ;; Test case for parse_numbers
     mov rax, test_number
-    call parse_ascii_int
+    call parse_numbers
 
-    cmp rdi, 1334
+    cmp qword [number_array], 2008
+    jne _parse_fail
+
+    cmp qword [number_array+8], 1529
+    jne _parse_fail
+
+    cmp qword [number_array+16], 1594
     jne _parse_fail
 
     exit EXIT_SUCCESS
@@ -54,49 +61,51 @@ _read_input_error:
     mov rax, buffer_size_err_msg
     call error
 
-;;; Parse ASCII characters into an integer until hitting
-;;; a non-numeric character.
+;;; Parse the input string of ASCII characters into an array of 64 bit
+;;; integers.
 ;;;
-;;; Parameters:
-;;; `rax` - Start address of the ASCII string.
+;;; Assumes numbers are separated by newlines.
+;;; Stops parsing after reading a NUL byte.
 ;;;
-;;; Returns:
-;;; `rax` - Address one past last ASCII digit.
-;;; `rdi` - The parsed integer.
-;;; `rsi` - The character the parsing ended on.
-;;;
-;;; This routine raises an error if it
-parse_ascii_int:
-    mov rdi, 0                  ; Running total.
-    mov rsi, 0                  ; Current char we're parsing.
-_parse_ascii_int_loop:
-    ;; Read a byte from the `resb` into the `rsi` register (which
-    ;; is 64 bits), and zero extend the byte until it fits the
-    ;; register.
-    movzx rsi, byte [rax]
+;;; Exits with an error if there are more numbers to parse than
+;;; MAX_PARSED_NUMBERS.
+parse_numbers:
+    mov r8, input_buffer        ; Read pointer.
+    mov r9, number_array        ; Write pointer.
+    mov r10, 0                  ; Running total.
+    mov r11, 0                  ; Amount of parsed numbers.
+_parse_numbers_loop:
+    ;; Read a byte of the string. Zero extend the bytes. (We want
+    ;; an unsigned number).
+    movzx rsi, byte [r8]
 
-    ;; If it's less than 48 (`0` in ASCII), we're not parsing digits
-    ;; anymore and we're done.
-    cmp rsi, 48
-    jl _parse_ascii_int_end
+    ;; Check if we're at the end of the string.
+    cmp rsi, 0
+    je _parse_numbers_end
 
-    ;; Same if greater than 57 (`9` in ASCII).
-    cmp rsi, 57
-    jg _parse_ascii_int_end
+    ;; Check if we're on a newline.
+    cmp rsi, 10
+    je _parse_numbers_next
 
-    ;; Here, we have a valid digit.
-    ;;
-    ;;  - Subtract 48 to convert ASCII to a numeric digit.
-    ;;  - Multiply the running total with 10.
-    ;;  - Add the parsed digit to the running total.
+    ;; We have anohter digit. `current_total *= 10`.
+    imul r10, 10
+
+    ;; Parse character and add it to our total. Assume no incorrect
+    ;; input.
     sub rsi, 48
-    imul rdi, 10
-    add rdi, rsi
+    add r10, rsi
 
-    ;; Move our pointer another byte and loop again.
-    inc rax
-    jmp _parse_ascii_int_loop
-_parse_ascii_int_end:
+    inc r8                      ; Advance read pointer
+    jmp _parse_numbers_loop
+_parse_numbers_next:
+    mov [r9], r10               ; Write parse result of this round to array.
+    mov r10, 0                  ; Reset running total.
+    inc r11                     ; Inrement amount of parsed numbers.
+
+    inc r8                      ; Advance read pointer.
+    add r9, 8                   ; Advance write pointer (elems are 8 bytes long).
+    jmp _parse_numbers_loop
+_parse_numbers_end:
     ret
 
 section .data
@@ -118,4 +127,6 @@ section .data
 
 section .bss
     input_buffer resb BUFFER_SIZE
-    number_array resb BUFFER_SIZE
+    ;; Allocate in chunks of 8 bytes, because we're parsing these numbers
+    ;; into 64 bit integers.
+    number_array resq MAX_PARSED_NUMBERS
