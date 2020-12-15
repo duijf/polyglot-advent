@@ -21,7 +21,7 @@ programming languages. One programming language a problem / day.
  - Nim
  - OCaml
  - PHP
- - Python
+ - Python - [Solution for day 02](./02-python)
  - Racket
  - Ruby
  - Rust
