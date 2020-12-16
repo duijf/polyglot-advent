@@ -22,13 +22,15 @@ class Solution {
         for (String line : lines) {
             // Case: we hit an empty line and so our password entry is complete.
             if (line.length() == 0) {
-                passportLines.add(passport);
+                passportLines.add(passport.strip());
                 passport = "";
                 continue;
             }
 
             // Case: we have a nonempty line and can add it to our current entry.
-            passport.concat(line);
+            // Also add an extra space to replace the newline. Strings are immutable
+            // in Java (nice), so re-assign to the passport var again.
+            passport = passport.concat(line + " ");
         }
 
         long numValid = passportLines
