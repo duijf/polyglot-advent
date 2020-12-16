@@ -10,7 +10,7 @@ programming languages. One programming language a problem / day.
  - Assembly (NASM x64) - [Solution for day 01](./01-assembly)
  - C
  - C++
- - COBOL
+ - COBOL - [Solution for day 03](./03-cobol)
  - Erlang
  - Go
  - Haskell
