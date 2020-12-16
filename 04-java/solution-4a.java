@@ -34,6 +34,12 @@ class Solution {
             passport = passport.concat(line + " ");
         }
 
+        // Add the final line as well instead of forgetting it because there might
+        // not be two newlines after the final line of the file.
+        if (passport != "") {
+            passportLines.add(passport);
+        }
+
         long numValid = passportLines
             .stream()
             .map(Passport::parse)
@@ -82,17 +88,10 @@ class Passport {
     public static Optional<Passport> parse(String toParse) {
         var map = parseMap(toParse);
 
-        System.out.println("Parsing " + toParse);
-        System.out.println(map);
         var requiredKeys = new String[] {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
-
         if (!Util.containsKeys(map, requiredKeys)) {
-            System.out.println("Dropping");
-            System.out.println();
             return Optional.empty();
         }
-
-        System.out.println();
 
         var birthYear = map.get("byr");
         var issueYear = map.get("iyr");
@@ -151,7 +150,6 @@ class Util {
                 missing.add(key);
             }
         }
-        System.out.println("Missing keys: " + missing);
         return result;
     }
 }
