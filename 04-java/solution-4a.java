@@ -80,7 +80,32 @@ class Passport {
     // Parse a Passport from a given String, returning Optional.empty() when
     // parsing failed.
     public static Optional<Passport> parse(String toParse) {
-        return Optional.empty();
+        var map = parseMap(toParse);
+
+        var requiredKeys = new String[] {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
+        if (!Util.containsKeys(map, requiredKeys)) {
+            return Optional.empty();
+        }
+
+        var birthYear = map.get("byr");
+        var issueYear = map.get("iyr");
+        var expirationYear = map.get("eyr");
+        var height = map.get("hgt");
+        var hairColor = map.get("hcl");
+        var eyeColor = map.get("ecl");
+        var passportId = map.get("pid");
+        var countryId = Optional.ofNullable(map.get("cid"));
+
+        return Optional.of(new Passport(
+            birthYear,
+            issueYear,
+            expirationYear,
+            height,
+            hairColor,
+            eyeColor,
+            passportId,
+            countryId
+        ));
     }
 
     // Parse a line like:
@@ -106,5 +131,15 @@ class Passport {
         var split = toParse.split(":");
         assert split.length == 2;
         return new AbstractMap.SimpleEntry(split[0], split[1]);
+    }
+}
+
+class Util {
+    public static <K, V> boolean containsKeys(Map<K, V> map, K[] keys) {
+        boolean result = true;
+        for (K key : keys) {
+            result = result && map.containsKey(key);
+        }
+        return result;
     }
 }
