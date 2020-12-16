@@ -3,11 +3,12 @@ import java.nio.*;
 import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
     public static void main(String[] args) throws IOException {
         Path input = FileSystems.getDefault().getPath("input");
-        List<String> lines = Files.readAllLines(input, StandardCharsets.UTF_8);
+        var lines = Files.readAllLines(input, StandardCharsets.UTF_8);
 
         // We're parsing a file of "passport" information. Each passport is
         // separated by a blank line, but passport information can be spread
@@ -16,7 +17,7 @@ class Solution {
         // Here, we're iterating over the original lines and grouping the strings
         // into a new list of 1 string per password entry. There's bound to be
         // smarter ways of doing this.
-        List<String> passportLines = new ArrayList<String>();
+        var passportLines = new ArrayList<String>();
 
         String passport = "";
         for (String line : lines) {
@@ -79,7 +80,31 @@ class Passport {
     // Parse a Passport from a given String, returning Optional.empty() when
     // parsing failed.
     public static Optional<Passport> parse(String toParse) {
-        // TODO: Actually parse something.
         return Optional.empty();
+    }
+
+    // Parse a line like:
+    //
+    //     iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884 hcl:#cfa07d byr:1929`
+    //
+    // into a
+    //
+    //     Map.of("iyr", "2013", "ecl", "amb", ...)
+    static Map<String, String> parseMap(String toParse) {
+        return Stream.of(toParse.split(" "))
+            .map(Passport::parseKvp)
+            .collect(Collectors.toMap(
+                AbstractMap.SimpleEntry::getKey,
+                AbstractMap.SimpleEntry::getValue,
+                (prev, next) -> next,
+                HashMap::new
+            ));
+    }
+
+    // Parse "iyr:2013" into "iyr".
+    static AbstractMap.SimpleEntry parseKvp(String toParse) {
+        var split = toParse.split(":");
+        assert split.length == 2;
+        return new AbstractMap.SimpleEntry(split[0], split[1]);
     }
 }
