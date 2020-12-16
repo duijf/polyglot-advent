@@ -82,10 +82,17 @@ class Passport {
     public static Optional<Passport> parse(String toParse) {
         var map = parseMap(toParse);
 
+        System.out.println("Parsing " + toParse);
+        System.out.println(map);
         var requiredKeys = new String[] {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
+
         if (!Util.containsKeys(map, requiredKeys)) {
+            System.out.println("Dropping");
+            System.out.println();
             return Optional.empty();
         }
+
+        System.out.println();
 
         var birthYear = map.get("byr");
         var issueYear = map.get("iyr");
@@ -115,7 +122,7 @@ class Passport {
     // into a
     //
     //     Map.of("iyr", "2013", "ecl", "amb", ...)
-    static Map<String, String> parseMap(String toParse) {
+    static HashMap<String, String> parseMap(String toParse) {
         return Stream.of(toParse.split(" "))
             .map(Passport::parseKvp)
             .collect(Collectors.toMap(
@@ -137,9 +144,14 @@ class Passport {
 class Util {
     public static <K, V> boolean containsKeys(Map<K, V> map, K[] keys) {
         boolean result = true;
+        var missing = new ArrayList<K>();
         for (K key : keys) {
             result = result && map.containsKey(key);
+            if (!map.containsKey(key)) {
+                missing.add(key);
+            }
         }
+        System.out.println("Missing keys: " + missing);
         return result;
     }
 }
