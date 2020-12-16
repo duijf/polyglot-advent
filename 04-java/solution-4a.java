@@ -102,7 +102,7 @@ class Passport {
     }
 
     // Parse "iyr:2013" into "iyr".
-    static AbstractMap.SimpleEntry parseKvp(String toParse) {
+    static AbstractMap.SimpleEntry<String, String> parseKvp(String toParse) {
         var split = toParse.split(":");
         assert split.length == 2;
         return new AbstractMap.SimpleEntry(split[0], split[1]);
