@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. solution-1a.
+       PROGRAM-ID. solution-3a.
 
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.

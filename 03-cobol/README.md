@@ -1,10 +1,31 @@
+# Challenge 3 - COBOL
+
+## Impressions
+
+At first, I was hating myself for choosing COBOL, but this turned out quite
+fine actually. I had none of the segmentation fault problems that I
+encountered with assembly.
+
+The language was a bit quirky and verbose, but actually has some nice
+utilities for processing files, which surprised me.
+
+It's quite curious to see how much features are put into the language itself,
+with regard to processing files and such. In more modern times, you would
+expect these things to be in the standard library instead.
+
+It's quite a curious language. Although I wouldn't want this to be my day
+to day, it's not all that bad as people make it out to be. (As long as you
+don't write huge programs in it. The lack of local variables and type
+checking will get old quite fast I imagine.)
+
 ## Running
 
 ```
 # Load development tools.
 $ nix-shell
 
-$ ./run.sh solution-1a.cbl
+$ ./run.sh solution-3a.cbl
+$ ./run.sh solution-3b.cbl
 ```
 
 ## Resources used
