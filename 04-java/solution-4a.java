@@ -3,6 +3,7 @@ import java.nio.*;
 import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 class Solution {
@@ -42,8 +43,8 @@ class Solution {
 
         long numValid = passportLines
             .stream()
-            .map(Passport::parse)
-            .filter(Optional::isPresent)
+            .map(Passport::validate)
+            .filter(valid -> valid)
             .count();
 
         System.out.println(numValid);
@@ -51,67 +52,55 @@ class Solution {
 }
 
 class Passport {
-    String birthYear;
-    String issueYear;
-    String expirationYear;
-    String height;
-    String hairColor;
-    String eyeColor;
-    String passwordId;
-    Optional<String> countryId;
+    // Parse validate a Passport String, returning `false` if any of the validation
+    // rules failed.
+    //
+    // Normally, I'd go for the "Parse, don't validate" [1] approach by parsing into
+    // and returning a structured data object. However, that's quite verbose in Java
+    // and we won't actually use the parsed object here. Therefore, just parse
+    // everything into a map and do the validation right away.
+    //
+    // [1]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+    public static boolean validate(String passport) {
+        var map = parseMap(passport);
 
-    // Lovely verbosity, but let's just deal with it. I'm quite sure we'll need
-    // these fields and I bet you there are a couple of edge cases in
-    // the input where one field name is part of another.
-    public Passport(
-        String birthYear,
-        String issueYear,
-        String expirationYear,
-        String height,
-        String hairColor,
-        String eyeColor,
-        String passwordId,
-        Optional<String> countryId
-    ) {
-        this.birthYear = birthYear;
-        this.issueYear = issueYear;
-        this.expirationYear = expirationYear;
-        this.height = height;
-        this.hairColor = hairColor;
-        this.eyeColor = eyeColor;
-        this.passwordId = passwordId;
-        this.countryId = countryId;
-    }
+        // First check if all the keys we expect are in the map. (Doing optional
+        // handling of `map.get` is quite verbose in Java without Haskell's `do`
+        // or Rusts's `?`, so I'd rather do things this way).
+        var requiredKeys = Arrays.asList("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid");
+        if (!Util.containsKeys(map, requiredKeys))
+            return false;
 
-    // Parse a Passport from a given String, returning Optional.empty() when
-    // parsing failed.
-    public static Optional<Passport> parse(String toParse) {
-        var map = parseMap(toParse);
+        int birthYear = Util.parseInt(map.get("byr")).orElse(0);
+        boolean birthYearValid = (1920 <= birthYear) && (birthYear <= 2002);
 
-        var requiredKeys = new String[] {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
-        if (!Util.containsKeys(map, requiredKeys)) {
-            return Optional.empty();
+        int issueYear = Util.parseInt(map.get("iyr")).orElse(0);
+        boolean issueYearValid = (2010 <= issueYear) && (issueYear <= 2020);
+
+        int expirationYear = Util.parseInt(map.get("eyr")).orElse(0);
+        boolean expirationYearValid = (2020 <= expirationYear) && (expirationYear <= 2030);
+
+        var heightStr = map.get("hgt");
+        boolean heightValid = false;
+        int height = Util.parseInt(heightStr.substring(0, heightStr.length() - 2)).orElse(0);
+        var units = heightStr.substring(heightStr.length() - 2, heightStr.length());
+
+        if (units.equals("cm")) {
+            heightValid = (150 <= height) && (height <= 193);
+        }
+        else if (units.equals("in")) {
+            heightValid = (59 <= height) && (height <= 76);
         }
 
-        var birthYear = map.get("byr");
-        var issueYear = map.get("iyr");
-        var expirationYear = map.get("eyr");
-        var height = map.get("hgt");
-        var hairColor = map.get("hcl");
-        var eyeColor = map.get("ecl");
-        var passportId = map.get("pid");
-        var countryId = Optional.ofNullable(map.get("cid"));
+        boolean hairColorValid = map.get("hcl").matches("#[a-f0-9]{6}");
 
-        return Optional.of(new Passport(
-            birthYear,
-            issueYear,
-            expirationYear,
-            height,
-            hairColor,
-            eyeColor,
-            passportId,
-            countryId
-        ));
+        var validEyeColors = Arrays.asList("amb", "blu", "brn", "gry", "grn", "hzl", "oth");
+        boolean eyeColorValid = validEyeColors.contains(map.get("ecl"));
+
+        boolean passportIdValid = map.get("pid").matches("[0-9]{9}");
+
+        return birthYearValid && issueYearValid && expirationYearValid &&
+               heightValid && hairColorValid && eyeColorValid && passportIdValid;
     }
 
     // Parse a line like:
@@ -132,7 +121,7 @@ class Passport {
             ));
     }
 
-    // Parse "iyr:2013" into "iyr".
+    // Parse "iyr:2013" into SimpleEntry("iyr", "2013").
     static AbstractMap.SimpleEntry<String, String> parseKvp(String toParse) {
         var split = toParse.split(":");
         assert split.length == 2;
@@ -141,7 +130,7 @@ class Passport {
 }
 
 class Util {
-    public static <K, V> boolean containsKeys(Map<K, V> map, K[] keys) {
+    public static <K, V> boolean containsKeys(Map<K, V> map, List<K> keys) {
         boolean result = true;
         var missing = new ArrayList<K>();
         for (K key : keys) {
@@ -151,5 +140,21 @@ class Util {
             }
         }
         return result;
+    }
+
+    public static OptionalInt parseInt(String toParse) {
+        try {
+            return OptionalInt.of(Integer.parseInt(toParse));
+        }
+        catch (NumberFormatException e) {
+            return OptionalInt.empty();
+        }
+    }
+
+    public static String removeSuffix(String str, String suffix) {
+        if (str.endsWith(suffix)) {
+            return str.substring(0, str.length() - suffix.length());
+        }
+        return str;
     }
 }
