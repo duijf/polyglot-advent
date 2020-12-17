@@ -15,7 +15,7 @@ programming languages. One programming language a problem / day.
  - Go
  - Haskell
  - Idris
- - Java
+ - Java - [Solution for day 04](./04-java)
  - Julia
  - (La)TeX
  - Nim
