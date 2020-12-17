@@ -5,7 +5,7 @@
 # EXAMPLE
 #
 #     $ nix-shell
-#     $ ./run.sh solution-4a.java
+#     $ ./run.sh solution.java
 #
 # ENVIRONMENT
 #

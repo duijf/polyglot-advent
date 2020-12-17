@@ -27,5 +27,5 @@
 # Get the development tools.
 $ nix-shell
 
-$ ./run.sh solution-04.java
+$ ./run.sh solution.java
 ```
