@@ -1,3 +1,8 @@
+CREATE TABLE groups (
+       group_id BIGSERIAL,
+       group_size INT
+);
+
 CREATE TABLE answers (
        answer_id BIGSERIAL PRIMARY KEY,
        group_id BIGSERIAL,
@@ -11,6 +16,7 @@ DECLARE
     answers TEXT[];
     answer TEXT;
     group_id INTEGER DEFAULT 0;
+    group_size INTEGER;
 BEGIN
     -- Split our input file on double newlines to get the answer
     -- lines for each group.
@@ -19,13 +25,23 @@ BEGIN
     FOREACH group_ IN ARRAY groups
     LOOP
         answers = regexp_split_to_array(group_, '');
+        group_size = 1;
+
         FOREACH answer IN ARRAY answers
         LOOP
             -- Do not insert newlines an answers.
             IF answer != chr(10) THEN
                INSERT INTO answers (group_id, answer) VALUES (group_id, answer);
+            ELSE
+               -- We hit a newline, so we're at a new persons answers.
+               -- Increment the group size.
+               group_size = group_size + 1;
             END IF;
         END LOOP;
+
+        -- Save group size information.
+        INSERT INTO groups (group_id, group_size) VALUES (group_id, group_size);
+
         group_id = group_id + 1;
     END LOOP;
 
