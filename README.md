@@ -25,7 +25,7 @@ programming languages. One programming language a problem / day.
  - Racket
  - Ruby
  - Rust
- - SQL
+ - SQL - [Solution for day 06](./06-sql)
  - Scheme
  - GLSL Shaders
  - Smalltalk
