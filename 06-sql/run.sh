@@ -35,6 +35,10 @@ listen_addresses = ''
 unix_socket_directories = '$POSTGRES_DATA'
 EOF
 
+# Copy the input file to the Postgres data directory so our solution
+# can actually read it with pg_read_file.
+cp input "$POSTGRES_DATA"
+
 # Start the cluster in the background and remember the PID so we can
 # kill the server later.
 echo "Starting Postgres.."
