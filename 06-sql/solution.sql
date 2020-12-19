@@ -58,3 +58,16 @@ WITH
         FROM answers GROUP BY group_id
     )
 SELECT SUM(distinct_answers.c) FROM distinct_answers;
+
+WITH
+    answer_counts_per_group (group_id, answer, c) AS (
+        SELECT group_id, answer, COUNT(answer)
+        FROM answers GROUP BY group_id, answer
+    ),
+    all_questions_ticked AS (
+        SELECT answer_counts_per_group.group_id, answer, c
+        FROM answer_counts_per_group
+        NATURAL JOIN groups
+        WHERE groups.group_size = answer_counts_per_group.c
+    )
+SELECT COUNT(*) FROM all_questions_ticked;
