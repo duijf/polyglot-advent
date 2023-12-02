@@ -1,9 +1,11 @@
 use anyhow::Result;
 
 mod one;
+mod two;
 
 fn main() -> Result<()> {
-    one::puzzle_one()?;
-    one::puzzle_two()?;
+    dbg!(one::puzzle_one()?);
+    dbg!(one::puzzle_two()?);
+    dbg!(two::puzzle_one()?);
     Ok(())
 }
