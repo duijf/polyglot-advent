@@ -78,35 +78,3 @@ pub fn puzzle_two() -> Result<u32> {
 
     Ok(total)
 }
-
-// fn p_games(input: &str) -> IResult<&str, Vec<Game>> {
-//     all_consuming(separated_list1(newline, p_game))(&input)
-// }
-//
-// fn p_game(input: &str) -> IResult<&str, Game> {
-//     tuple((
-//         terminated(tag("Game"), space1),
-//         u32,
-//         terminated(tag(":"), space1),
-//         separated_list1(terminated(tag(";"), space1), p_set)
-//     ))
-//     .map(|(_, id, _, sets)| {
-//         Game{id, sets}
-//     })
-//     .parse(input)
-// }
-//
-// fn p_set(input: &str) -> IResult<&str, Set> {
-//     separated_list1(terminated(tag(","), space1), p_quantity)(input)
-// }
-//
-// fn p_quantity(input: &str) -> IResult<&str, (u32, Color)> {
-//     tuple((
-//         terminated(u32, space1),
-//         alt((
-//             value(Color::Red, tag("red")),
-//             value(Color::Green, tag("green")),
-//             value(Color::Blue, tag("blue")),
-//         ))
-//     ))(input)
-// }

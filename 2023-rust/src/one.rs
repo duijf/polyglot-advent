@@ -3,7 +3,7 @@ use anyhow::{Context, Result};
 
 
 pub fn puzzle_one() -> Result<u32> {
-    let input: String = String::from_utf8_lossy(&fs::read("inputs/one")?).into_owned();
+    let input = std::fs::read_to_string("inputs/one")?;
 
     let mut total: u32 = 0;
 
