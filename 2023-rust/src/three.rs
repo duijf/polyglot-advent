@@ -1,6 +1,4 @@
-#![allow(unused)]
-
-use anyhow::{Result, Context};
+use anyhow::Result;
 
 pub fn puzzle_one() -> Result<u32> {
     let input: String = std::fs::read_to_string("inputs/three")?;
