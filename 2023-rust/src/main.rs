@@ -3,6 +3,7 @@ use anyhow::Result;
 mod one;
 mod two;
 mod three;
+mod four;
 
 fn main() -> Result<()> {
     dbg!(one::puzzle_one()?);
@@ -11,5 +12,6 @@ fn main() -> Result<()> {
     dbg!(two::puzzle_two()?);
     dbg!(three::puzzle_one()?);
     dbg!(three::puzzle_two()?);
+    dbg!(four::puzzle_one()?);
     Ok(())
 }
