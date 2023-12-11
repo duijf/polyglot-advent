@@ -13,5 +13,6 @@ fn main() -> Result<()> {
     dbg!(three::puzzle_one()?);
     dbg!(three::puzzle_two()?);
     dbg!(four::puzzle_one()?);
+    dbg!(four::puzzle_two()?);
     Ok(())
 }
