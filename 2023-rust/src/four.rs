@@ -1,6 +1,3 @@
-
-#![allow(unused)]
-
 use std::collections::HashSet;
 use anyhow::{Result, Context};
 
