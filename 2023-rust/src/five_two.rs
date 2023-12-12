@@ -1,7 +1,7 @@
 #![allow(unused)]
 
+use anyhow::{bail, Context, Result};
 use core::ops::Range;
-use anyhow::{Result, Context, bail};
 
 #[derive(Debug)]
 struct Transform {
@@ -18,8 +18,10 @@ pub fn puzzle() -> Result<u64> {
     let mut ranges = Vec::new();
 
     for range in ranges_unparsed.chunks(2) {
-        let &[start, len] = range else { bail!("Unbalanced ranges in input") };
-        ranges.push(start..start+len)
+        let &[start, len] = range else {
+            bail!("Unbalanced ranges in input")
+        };
+        ranges.push(start..start + len)
     }
 
     drop(ranges_unparsed);
@@ -30,21 +32,23 @@ pub fn puzzle() -> Result<u64> {
     for line in input.lines() {
         if line == "" {
             current_map_idx += 1;
-            continue
+            continue;
         }
         if line.ends_with("map:") {
-            continue
+            continue;
         }
-
 
         // Ugly syntax / logic. I just want to unpack into a tuple.
         // Split, parse, collect into a Vec, then slice it and match on the three fields we expect.
         let t = match &line.split(" ").flat_map(|f| f.parse()).collect::<Vec<_>>()[..] {
             &[to, from, l] => {
                 let offset = to as i64 - from as i64;
-                Transform{ range: from..(from+l), offset }
-            },
-            unexpected => bail!("Invalid split format: {:?}", unexpected)
+                Transform {
+                    range: from..(from + l),
+                    offset,
+                }
+            }
+            unexpected => bail!("Invalid split format: {:?}", unexpected),
         };
 
         maps[current_map_idx].push(t);
@@ -73,7 +77,11 @@ pub fn puzzle() -> Result<u64> {
         ranges.extend(transformed.drain(0..));
     }
 
-    ranges.iter().map(|r| r.start).min().context("No minimum element found")
+    ranges
+        .iter()
+        .map(|r| r.start)
+        .min()
+        .context("No minimum element found")
 }
 
 #[derive(Debug, PartialEq)]
@@ -102,9 +110,15 @@ fn find_overlap(a: &Range<u64>, b: &Range<u64>) -> Overlap {
             remaining.push(overlap.end..a.end)
         };
 
-        Overlap { overlap: Some(overlap), remaining }
+        Overlap {
+            overlap: Some(overlap),
+            remaining,
+        }
     } else {
-        Overlap { overlap: None, remaining: vec![a.clone()] }
+        Overlap {
+            overlap: None,
+            remaining: vec![a.clone()],
+        }
     }
 }
 
@@ -112,11 +126,13 @@ fn find_overlap(a: &Range<u64>, b: &Range<u64>) -> Overlap {
 mod tests {
     use super::*;
 
-    fn assert_overlap(a: Range<u64>, b: Range<u64>, overlap: Option<Range<u64>>, remaining: Vec<Range<u64>>) {
-        assert_eq!(
-            find_overlap(&a, &b),
-            Overlap { overlap, remaining }
-        );
+    fn assert_overlap(
+        a: Range<u64>,
+        b: Range<u64>,
+        overlap: Option<Range<u64>>,
+        remaining: Vec<Range<u64>>,
+    ) {
+        assert_eq!(find_overlap(&a, &b), Overlap { overlap, remaining });
     }
 
     #[test]

@@ -1,6 +1,5 @@
-use std::fs;
 use anyhow::{Context, Result};
-
+use std::fs;
 
 pub fn puzzle_one() -> Result<u32> {
     let input = std::fs::read_to_string("inputs/one")?;

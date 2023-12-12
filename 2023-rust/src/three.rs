@@ -25,9 +25,15 @@ pub fn puzzle_one() -> Result<u32> {
             // part number. We then need to find the full part number
             // and add it to our total.
             let coords_to_search = [
-                (y-1, x-1), (y-1, x), (y-1, x+1),
-                (y, x-1),   (y, x),   (y, x+1),
-                (y+1, x-1), (y+1, x), (y+1, x+1),
+                (y - 1, x - 1),
+                (y - 1, x),
+                (y - 1, x + 1),
+                (y, x - 1),
+                (y, x),
+                (y, x + 1),
+                (y + 1, x - 1),
+                (y + 1, x),
+                (y + 1, x + 1),
             ];
 
             for (y, x) in coords_to_search {
@@ -49,7 +55,7 @@ pub fn puzzle_one() -> Result<u32> {
                     // in our example input.
                     let mut end = x;
                     while end + 1 < schematic[y].len() {
-                        if !schematic[y][end+1].is_digit(10) {
+                        if !schematic[y][end + 1].is_digit(10) {
                             break;
                         }
                         end += 1;
@@ -100,9 +106,15 @@ pub fn puzzle_two() -> Result<u32> {
             let mut found = Vec::new();
 
             let coords_to_search = [
-                (y-1, x-1), (y-1, x), (y-1, x+1),
-                (y, x-1),   (y, x),   (y, x+1),
-                (y+1, x-1), (y+1, x), (y+1, x+1),
+                (y - 1, x - 1),
+                (y - 1, x),
+                (y - 1, x + 1),
+                (y, x - 1),
+                (y, x),
+                (y, x + 1),
+                (y + 1, x - 1),
+                (y + 1, x),
+                (y + 1, x + 1),
             ];
 
             for (y, x) in coords_to_search {
@@ -124,7 +136,7 @@ pub fn puzzle_two() -> Result<u32> {
                     // in our example input.
                     let mut end = x;
                     while end + 1 < schematic[y].len() {
-                        if !schematic[y][end+1].is_digit(10) {
+                        if !schematic[y][end + 1].is_digit(10) {
                             break;
                         }
                         end += 1;

@@ -1,11 +1,11 @@
 use anyhow::Result;
 
-mod one;
-mod two;
-mod three;
-mod four;
 mod five_one;
 mod five_two;
+mod four;
+mod one;
+mod three;
+mod two;
 
 fn main() -> Result<()> {
     dbg!(one::puzzle_one()?);

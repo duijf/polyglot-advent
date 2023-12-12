@@ -1,5 +1,4 @@
-use anyhow::{Result, Context};
-
+use anyhow::{Context, Result};
 
 pub fn puzzle_one() -> Result<u32> {
     let input: String = std::fs::read_to_string("inputs/two")?;
@@ -41,7 +40,6 @@ pub fn puzzle_one() -> Result<u32> {
 
     Ok(total)
 }
-
 
 pub fn puzzle_two() -> Result<u32> {
     let input: String = std::fs::read_to_string("inputs/two")?;

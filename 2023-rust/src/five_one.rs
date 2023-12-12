@@ -1,8 +1,8 @@
 #![allow(unused)]
 
+use anyhow::{bail, Context, Result};
 use core::ops::Range;
 use std::collections::HashSet;
-use anyhow::{Result, Context, bail};
 
 #[derive(Debug)]
 struct Transform {
@@ -13,7 +13,7 @@ struct Transform {
 
 impl Transform {
     fn source_contains(&self, num: u64) -> bool {
-        (self.source_start..self.source_start+self.length).contains(&num)
+        (self.source_start..self.source_start + self.length).contains(&num)
     }
 }
 
@@ -29,27 +29,28 @@ pub fn puzzle() -> Result<u64> {
     for line in input.lines() {
         if line == "" {
             current_map_idx += 1;
-            continue
+            continue;
         }
         if line.ends_with("map:") {
-            continue
+            continue;
         }
 
         // Geez, this is ugly syntax. Split, collect into a Vec, then slice
         // it and match on the three fields we expect.
         let transform = match &line.split(" ").collect::<Vec<_>>()[..] {
-            &[dst, src, l] => {
-                maps[current_map_idx].push(Transform{
-                    source_start: src.parse()?,
-                    dest_start: dst.parse()?,
-                    length: l.parse()?,
-                })
-            }
-            unexpected => bail!("Invalid split format: {:?}", unexpected)
+            &[dst, src, l] => maps[current_map_idx].push(Transform {
+                source_start: src.parse()?,
+                dest_start: dst.parse()?,
+                length: l.parse()?,
+            }),
+            unexpected => bail!("Invalid split format: {:?}", unexpected),
         };
     }
 
-    seeds.map(|s| transform_num(s, &maps)).min().context("No minimum found")
+    seeds
+        .map(|s| transform_num(s, &maps))
+        .min()
+        .context("No minimum found")
 }
 
 fn transform_num(num: u64, maps: &Vec<Vec<Transform>>) -> u64 {
@@ -59,7 +60,7 @@ fn transform_num(num: u64, maps: &Vec<Vec<Transform>>) -> u64 {
         for transform in map {
             if transform.source_contains(num) {
                 num = transform.dest_start + num - transform.source_start;
-                break
+                break;
             }
         }
     }

@@ -1,5 +1,5 @@
+use anyhow::{Context, Result};
 use std::collections::HashSet;
-use anyhow::{Result, Context};
 
 pub fn puzzle_one() -> Result<u32> {
     let input = std::fs::read_to_string("inputs/four")?;
@@ -10,15 +10,13 @@ pub fn puzzle_one() -> Result<u32> {
         let (_, line) = line.split_once(": ").context("Invalid format")?;
         let (winning, drawed) = line.split_once(" | ").context("Invalid format")?;
 
-        let winning: HashSet<usize> = winning
-            .split_whitespace().flat_map(|n| n.parse()).collect();
+        let winning: HashSet<usize> = winning.split_whitespace().flat_map(|n| n.parse()).collect();
 
-        let drawed: HashSet<usize> = drawed
-            .split_whitespace().flat_map(|n| n.parse()).collect();
+        let drawed: HashSet<usize> = drawed.split_whitespace().flat_map(|n| n.parse()).collect();
 
         let num_winning: u32 = winning.intersection(&drawed).count().try_into()?;
         if num_winning == 0 {
-            continue
+            continue;
         }
 
         total += u32::pow(2, num_winning.saturating_sub(1));
@@ -37,15 +35,13 @@ pub fn puzzle_two() -> Result<u32> {
         let (_, line) = line.split_once(": ").context("Invalid format")?;
         let (winning, drawed) = line.split_once(" | ").context("Invalid format")?;
 
-        let winning: HashSet<usize> = winning
-            .split_whitespace().flat_map(|n| n.parse()).collect();
+        let winning: HashSet<usize> = winning.split_whitespace().flat_map(|n| n.parse()).collect();
 
-        let drawed: HashSet<usize> = drawed
-            .split_whitespace().flat_map(|n| n.parse()).collect();
+        let drawed: HashSet<usize> = drawed.split_whitespace().flat_map(|n| n.parse()).collect();
 
         let num_winning = winning.intersection(&drawed).count();
 
-        for next in idx+1..=idx+num_winning {
+        for next in idx + 1..=idx + num_winning {
             num_cards[next] += num_cards[idx]
         }
     }
