@@ -13,18 +13,14 @@ pub fn puzzle() -> Result<u64> {
     let input = std::fs::read_to_string("inputs/five")?;
 
     let (ranges_unparsed, input) = input.split_once("\n\n").context("Invalid format")?;
-    let ranges_unparsed: Vec<u64> = ranges_unparsed.split(" ").flat_map(|n| n.parse()).collect();
 
     let mut ranges = Vec::new();
-
-    for range in ranges_unparsed.chunks(2) {
+    for range in parse_all_numbers(ranges_unparsed).chunks(2) {
         let &[start, len] = range else {
             bail!("Unbalanced ranges in input")
         };
         ranges.push(start..start + len)
     }
-
-    drop(ranges_unparsed);
 
     let mut maps: Vec<Vec<Transform>> = std::iter::repeat_with(|| Vec::new()).take(7).collect();
 
@@ -39,8 +35,9 @@ pub fn puzzle() -> Result<u64> {
         }
 
         // Ugly syntax / logic. I just want to unpack into a tuple.
-        // Split, parse, collect into a Vec, then slice it and match on the three fields we expect.
-        let t = match &line.split(" ").flat_map(|f| f.parse()).collect::<Vec<_>>()[..] {
+        // Split, parse, collect into a Vec, then slice it and match
+        // on the three fields we expect.
+        let t = match &parse_all_numbers(line)[..] {
             &[to, from, l] => {
                 let offset = to as i64 - from as i64;
                 Transform {
@@ -82,6 +79,11 @@ pub fn puzzle() -> Result<u64> {
         .map(|r| r.start)
         .min()
         .context("No minimum element found")
+}
+
+
+fn parse_all_numbers(input: &str) -> Vec<u64> {
+    input.split(" ").flat_map(|n| n.parse()).collect()
 }
 
 #[derive(Debug, PartialEq)]
