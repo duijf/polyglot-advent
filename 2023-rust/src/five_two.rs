@@ -81,7 +81,6 @@ pub fn puzzle() -> Result<u64> {
         .context("No minimum element found")
 }
 
-
 fn parse_all_numbers(input: &str) -> Vec<u64> {
     input.split(" ").flat_map(|n| n.parse()).collect()
 }
