@@ -6,6 +6,7 @@ mod three;
 mod four;
 mod five_one;
 mod five_two;
+mod six;
 
 fn main() -> Result<()> {
     dbg!(one::puzzle_one()?);
@@ -18,5 +19,7 @@ fn main() -> Result<()> {
     dbg!(four::puzzle_two()?);
     dbg!(five_one::puzzle()?);
     dbg!(five_two::puzzle()?);
+    dbg!(six::puzzle_one()?);
+    dbg!(six::puzzle_two()?);
     Ok(())
 }
