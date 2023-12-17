@@ -26,6 +26,7 @@ fn main() -> Result<()> {
     dbg!(six::puzzle_two()?);
     dbg!(seven_one::puzzle()?);
     dbg!(seven_two::puzzle()?);
-    dbg!(eight::puzzle()?);
+    dbg!(eight::puzzle_one()?);
+    dbg!(eight::puzzle_two()?);
     Ok(())
 }

@@ -4,10 +4,52 @@ use std::collections::HashMap;
 use anyhow::{bail, Context, Result};
 use chumsky::prelude::*;
 
-pub fn puzzle() -> Result<u64> {
+pub fn puzzle_one() -> Result<u64> {
     let input = std::fs::read_to_string("inputs/eight")?;
     let input = p_input().parse(input).unwrap();
-    solve(input)
+    Ok(solve(&input, Node::from("AAA")))
+}
+
+pub fn puzzle_two() -> Result<u64> {
+    let input = std::fs::read_to_string("inputs/eight")?;
+    let input = p_input().parse(input).unwrap();
+
+    let starts = input.network.keys().filter(|node| node.0.ends_with("A"));
+
+    let res = starts
+        .map(|s| solve(&input, s.clone()))
+        .reduce(least_common_multiple)
+        .unwrap();
+
+    Ok(res)
+}
+
+// Return the least common multiple of two values. According to
+// Wikipedia [1], we can use the greatest common divisor for this
+// which seems more efficient than prime factorisation.
+//
+// [1] https://en.wikipedia.org/wiki/Least_common_multiple#Using_the_greatest_common_divisor
+fn least_common_multiple(a: u64, b: u64) -> u64 {
+    a * (b / greatest_common_divisor(a, b))
+}
+
+fn greatest_common_divisor(a: u64, b: u64) -> u64 {
+    // Euclids algorithm for finding the GCD. The general idea is:
+    // "The GCD of two numbers does not change if the larger number
+    // is replaced by its difference with the smaller number"
+    let mut a = a;
+    let mut b = b;
+
+    loop {
+        if a == b {
+            return a;
+        }
+
+        (a, b) = (
+            std::cmp::max(a, b) - std::cmp::min(a, b),
+            std::cmp::min(a, b),
+        );
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -75,24 +117,25 @@ fn p_input() -> impl Parser<char, Input, Error = Simple<char>> {
         })
 }
 
-fn solve(input: Input) -> Result<u64> {
-    let term = Node("ZZZ".into());
-    let directions = input.directions.iter().cycle();
-
-    let mut current = Node("AAA".into());
+fn solve(input: &Input, start: Node) -> u64 {
+    let mut current = start;
     let mut steps = 0;
-    for direction in directions {
-        if current == term {
+
+    for direction in input.directions.iter().cycle() {
+        if current.0.ends_with("Z") {
             break;
         };
 
-        let index = if *direction == Direction::Left { 0 } else { 1 };
-        // Maybe there is a way to get rid of `clone()` here?
-        current = input.network.get(&current).unwrap()[index].clone();
+        let [left, right] = input.network.get(&current).unwrap();
+        if *direction == Direction::Left {
+            current = left.clone();
+        } else {
+            current = right.clone();
+        };
         steps += 1;
     }
 
-    Ok(steps)
+    steps
 }
 
 #[cfg(test)]
@@ -115,7 +158,7 @@ mod tests {
             ]),
         };
 
-        assert_matches!(solve(basic), Ok(2));
+        assert_matches!(solve(&basic, Node::from("AAA")), 2);
 
         let cycles = Input {
             directions: vec![Direction::Left, Direction::Left, Direction::Right],
@@ -126,7 +169,7 @@ mod tests {
             ]),
         };
 
-        assert_matches!(solve(cycles), Ok(6));
+        assert_matches!(solve(&cycles, Node::from("AAA")), 6);
     }
 
     #[test]
