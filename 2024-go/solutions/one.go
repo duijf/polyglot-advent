@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -10,33 +11,34 @@ import (
 
 func main() {
 	contents, err := os.ReadFile("input/one.txt")
-	if err != nil {
-		fmt.Errorf("failed to read input: %w", err)
-	}
+	ExitOnErr("failed to read input: %v", err)
 
 	lines := strings.Split(string(contents), "\n")
 
-	var c1 []int
-	var c2 []int
+	var c1, c2 []int
 
 	for _, line := range lines {
-		stuff := strings.Split(line, "   ")
+		parts := strings.Fields(line)
 
-		if len(stuff) != 2 {
+		if len(parts) != 2 {
 			continue
 		}
 
-		parsed, _ := strconv.Atoi(stuff[0])
-		c1 = append(c1, parsed)
-		parsed, _ = strconv.Atoi(stuff[1])
-		c2 = append(c2, parsed)
+		val1, err1 := strconv.Atoi(parts[0])
+		val2, err2 := strconv.Atoi(parts[1])
+
+		ExitOnErr("could not parse int: %v", err1)
+		ExitOnErr("could not parse int: %v", err2)
+
+		c1 = append(c1, val1)
+		c2 = append(c2, val2)
 	}
 
 	sort.Ints(c1)
 	sort.Ints(c2)
 
 	diff := 0
-	for i := 0; i < len(c1); i++ {
+	for i := range c1 {
 		diff += AbsInt(c1[i] - c2[i])
 	}
 
@@ -53,6 +55,12 @@ func main() {
 	}
 
 	fmt.Println("Part 2:", similarity)
+}
+
+func ExitOnErr(format string, err error) {
+	if err != nil {
+		log.Fatalf(format, err)
+	}
 }
 
 func AbsInt(x int) int {
