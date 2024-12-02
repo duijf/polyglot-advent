@@ -15,3 +15,11 @@ func AbsInt(x int) int {
 
 	return -x
 }
+
+func MapSlice[T any, U any](slice []T, fn func(T) U) []U {
+	result := make([]U, len(slice))
+	for idx, val := range slice {
+		result[idx] = fn(val)
+	}
+	return result
+}
