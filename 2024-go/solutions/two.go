@@ -3,24 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"duijf.io/advent/lib"
 )
-
-type CandidateType int
-
-const (
-	ORIGINAL CandidateType = iota
-	DERIVED
-)
-
-type Candidate struct {
-	Type CandidateType
-	Line int
-	Nums []int
-}
 
 func main() {
 	contents, err := os.ReadFile("input/two.txt")
@@ -28,76 +14,56 @@ func main() {
 
 	lines := strings.Split(string(contents), "\n")
 
-	safeCount := 0
-	candidates := make([]Candidate, 0)
-	safeLines := make(map[int]bool)
+	safe := 0
+	safeAfterModification := 0
 
-	for idx, line := range lines {
-		nums := lib.MapSlice(strings.Fields(line), func(val string) int {
-			num, err := strconv.Atoi(val)
-			lib.ExitOnErr("%v", err)
-			return num
-		})
+	for _, line := range lines {
+		report := lib.MapSlice(strings.Fields(line), lib.ParseIntOrExit)
 
-		if len(nums) == 0 {
+		if len(report) == 0 {
 			continue
 		}
 
-		candidates = append(candidates, Candidate{Type: ORIGINAL, Line: idx, Nums: nums})
+		if isSafe(report) {
+			safe++
+		} else if canBeMadeSafe(report) {
+			safeAfterModification++
+		}
 	}
 
-	for true {
-		if len(candidates) == 0 {
-			break
+	fmt.Println("Part 1:", safe)
+	fmt.Println("Part 2:", safe+safeAfterModification)
+}
+
+func isSafe(report []int) bool {
+	increase := false
+	decrease := false
+
+	for i := 1; i < len(report); i++ {
+		diff := report[i] - report[i-1]
+
+		if diff > 0 {
+			increase = true
+		} else if diff < 0 {
+			decrease = true
+		} else {
+			return false
 		}
 
-		var c Candidate
-		c, candidates = candidates[0], candidates[1:]
-
-		firstDiff := c.Nums[1] - c.Nums[0]
-
-		safe := true
-
-		// The validation in the loop also validates that
-		// the first diff is safe.
-		for i := 1; i < len(c.Nums); i++ {
-			diff := c.Nums[i] - c.Nums[i-1]
-
-			if (firstDiff >= 0) != (diff >= 0) {
-				safe = false
-			}
-
-			diff = lib.AbsInt(diff)
-
-			if (diff < 1) || (3 < diff) {
-				safe = false
-			}
+		if lib.AbsInt(diff) > 3 {
+			return false
 		}
-
-		if !safe && c.Type == DERIVED {
-			continue
-		}
-
-		if !safe && c.Type == ORIGINAL {
-			// Create variations to also check.
-			for i := 0; i < len(c.Nums); i++ {
-				// Needs to be two lines, otherwise go re-uses some pointers
-				// and we get some
-				nums := append([]int{}, c.Nums[:i]...)
-				nums = append(nums, c.Nums[i+1:]...)
-
-				candidates = append(candidates, Candidate{Type: DERIVED, Nums: nums, Line: c.Line})
-			}
-			continue
-		}
-
-		if c.Type == ORIGINAL {
-			safeCount++
-		}
-
-		safeLines[c.Line] = true
 	}
 
-	fmt.Println("Part 1:", safeCount)
-	fmt.Println("Part 2:", len(safeLines))
+	return increase != decrease
+}
+
+func canBeMadeSafe(report []int) (safe bool) {
+	for i := 0; i < len(report); i++ {
+		modified := append([]int{}, report[:i]...)
+		modified = append(modified, report[i+1:]...)
+		safe = safe || isSafe(modified)
+	}
+
+	return
 }

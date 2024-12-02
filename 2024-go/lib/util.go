@@ -1,6 +1,9 @@
 package lib
 
-import "log"
+import (
+	"log"
+	"strconv"
+)
 
 func ExitOnErr(format string, err error) {
 	if err != nil {
@@ -22,4 +25,10 @@ func MapSlice[T any, U any](slice []T, fn func(T) U) []U {
 		result[idx] = fn(val)
 	}
 	return result
+}
+
+func ParseIntOrExit(val string) int {
+	num, err := strconv.Atoi(val)
+	ExitOnErr("%v", err)
+	return num
 }
