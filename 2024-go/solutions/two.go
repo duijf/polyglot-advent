@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"duijf.io/advent/lib"
@@ -60,9 +61,8 @@ func isSafe(report []int) bool {
 
 func canBeMadeSafe(report []int) (safe bool) {
 	for i := 0; i < len(report); i++ {
-		modified := append([]int{}, report[:i]...)
-		modified = append(modified, report[i+1:]...)
-		safe = safe || isSafe(modified)
+		tmp := append([]int{}, report...)
+		safe = safe || isSafe(slices.Delete(tmp, i, i+1))
 	}
 
 	return
