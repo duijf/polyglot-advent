@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"duijf.io/advent/lib"
 )
 
 func main() {
 	contents, err := os.ReadFile("input/one.txt")
-	ExitOnErr("failed to read input: %v", err)
+	lib.ExitOnErr("failed to read input: %v", err)
 
 	lines := strings.Split(string(contents), "\n")
 
@@ -27,8 +28,8 @@ func main() {
 		val1, err1 := strconv.Atoi(parts[0])
 		val2, err2 := strconv.Atoi(parts[1])
 
-		ExitOnErr("could not parse int: %v", err1)
-		ExitOnErr("could not parse int: %v", err2)
+		lib.ExitOnErr("could not parse int: %v", err1)
+		lib.ExitOnErr("could not parse int: %v", err2)
 
 		c1 = append(c1, val1)
 		c2 = append(c2, val2)
@@ -39,7 +40,7 @@ func main() {
 
 	diff := 0
 	for i := range c1 {
-		diff += AbsInt(c1[i] - c2[i])
+		diff += lib.AbsInt(c1[i] - c2[i])
 	}
 
 	fmt.Println("Part 1:", diff)
@@ -55,18 +56,4 @@ func main() {
 	}
 
 	fmt.Println("Part 2:", similarity)
-}
-
-func ExitOnErr(format string, err error) {
-	if err != nil {
-		log.Fatalf(format, err)
-	}
-}
-
-func AbsInt(x int) int {
-	if x >= 0 {
-		return x
-	}
-
-	return -x
 }
