@@ -32,3 +32,12 @@ func ParseIntOrExit(val string) int {
 	ExitOnErr("%v", err)
 	return num
 }
+
+func SplitSlice[T comparable](slice []T, element T) ([]T, []T) {
+	for i, v := range slice {
+		if v == element {
+			return slice[:i], slice[i+1:]
+		}
+	}
+	return slice, nil
+}
